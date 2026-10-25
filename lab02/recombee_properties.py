@@ -1,31 +1,33 @@
+import os
 import pandas as pd
-from recombee_api_client.api_client import RecombeeClient
+from dotenv import load_dotenv
+from recombee_api_client.api_client import RecombeeClient, Region
 from recombee_api_client.api_requests import AddItemProperty, ListItemProperties
 from recombee_api_client.exceptions import APIException
 
-# TODO 1: Configurare credentiale Recombee
-# Introduceti datele din contul vostru (Settings -> API Logins in Recombee Admin UI)
-DB_NAME = 'numele_bazei_tale_de_date'
-PRIVATE_TOKEN = 'tokenul_tau_privat'
-REGION = 'eu-west'  # Schimbati cu 'us-west' sau regiunea potrivita daca este cazul
+# Credentialele se citesc din fisierul .env (nu se urca pe GitHub)
+load_dotenv()
+DB_NAME = os.getenv('RECOMBEE_DB_NAME')
+PRIVATE_TOKEN = os.getenv('RECOMBEE_PRIVATE_TOKEN')
+REGION = Region.EU_WEST
 
 # Initializarea clientului Recombee
 client = RecombeeClient(DB_NAME, PRIVATE_TOKEN, region=REGION)
 
-# TODO 2: Configurare dataset propriu
-# Descarcati un dataset (CSV) de pe Kaggle/data.world (100-10K de intrari)
-# Urcati fisierul in acelasi folder cu acest script si setati numele in variabila de mai jos
-PATH_DATASET = 'dataset_ales.csv' 
+# Dataset: Movies (1980-2020) - sursa: GitHub/1tannu5
+# Coloane disponibile: name, rating, genre, year, released, score, votes,
+#                      director, writer, star, country, budget, gross, company, runtime
+PATH_DATASET = 'movies.csv'
 
-# TODO 3: Definirea schemei de date (minim 3 proprietati)
-# Adaptati aceasta lista in functie de coloanele din dataset-ul ales
-# Tipurile de date suportate de Recombee includ: 'string', 'int', 'double', 'boolean', 'timestamp'
-# Ex.: Pentru filme: titlu (string), an (int), rating (double)
+# Schema de date pentru Recombee (minim 3 proprietati obligatorii)
+# Nota: 'name' (titlul filmului) NU se adauga aici - il vom folosi ca itemId la Lab 03
 PROPRIETATI_CATALOG = [
-    {"name": "nume_proprietate_1", "type": "string"},
-    {"name": "nume_proprietate_2", "type": "int"},
-    {"name": "nume_proprietate_3", "type": "double"},
-    # Puteti adauga si alte proprietati optionale daca dataset-ul are
+    {"name": "genre",    "type": "string"},
+    {"name": "year",     "type": "int"},
+    {"name": "score",    "type": "double"},
+    {"name": "director", "type": "string"},
+    {"name": "rating",   "type": "string"},
+    {"name": "runtime",  "type": "int"},
 ]
 
 def load_dataset():
